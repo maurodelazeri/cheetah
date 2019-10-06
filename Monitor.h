@@ -6,7 +6,6 @@
 #include <zmq.hpp>
 #include <iostream>
 #include <thread>
-#include "dbg.h"
 
 class Monitor : zmq::monitor_t {
 public:
