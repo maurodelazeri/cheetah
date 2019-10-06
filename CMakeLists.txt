@@ -10,6 +10,6 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(cheetah main.cpp Monitor.h)
+add_executable(cheetah main.cc Monitor.h)
 
 target_link_libraries(cheetah ${CONAN_LIBS})
