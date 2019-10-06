@@ -16,7 +16,8 @@ void doMonitor(Monitor &monitor, zmq::socket_t &socket, std::string &addr) {
 
 int main (int argc, char *argv[])
 {
-    Monitor * monitor_;
+    std::unique_ptr<Monitor> monitor_front_;
+    std::unique_ptr<Monitor> monitor_back_;
 
     zmq::context_t context;
     zmq::socket_t front(context, ZMQ_XSUB);
@@ -32,16 +33,16 @@ int main (int argc, char *argv[])
         auto s3 = std::move(capture);
 
         {
-            monitor_ = new Monitor();
+            monitor_front_ = make_unique<Monitor>();
             std::string addr = "inproc://monitor.front";
-            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_), std::ref(s1), addr));
+            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_front_), std::ref(s1), addr));
             thr.detach();
         }
 
         {
-            monitor_ = new Monitor();
+            monitor_back_ = make_unique<Monitor>();
             std::string addr = "inproc://monitor.back";
-            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_), std::ref(s2),addr));
+            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_back_), std::ref(s2),addr));
             thr.detach();
         }
 
