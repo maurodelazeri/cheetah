@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
         {
             monitor_front_ = make_unique<Monitor>();
             std::string addr = "inproc://monitor.front";
+            // TODO, FIXME: change to lambda
             std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_front_), std::ref(front), addr));
             thr.detach();
         }
@@ -34,6 +35,7 @@ int main(int argc, char *argv[]) {
         {
             monitor_back_ = make_unique<Monitor>();
             std::string addr = "inproc://monitor.back";
+            // TODO, FIXME: change to lambda
             std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_back_), std::ref(back), addr));
             thr.detach();
         }
