@@ -1,9 +1,6 @@
-#include <chrono>
 #include <iostream>
 #include <thread>
 #include <zmq.hpp>
-#include <unistd.h>
-#include <future>
 #include <functional>
 #include "Monitor.h"
 
