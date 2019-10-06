@@ -22,15 +22,15 @@ int main (int argc, char *argv[])
     zmq::context_t context;
     zmq::socket_t front(context, ZMQ_XSUB);
     zmq::socket_t back(context, ZMQ_XPUB);
-    zmq::socket_t capture(context, ZMQ_XSUB);
+    //zmq::socket_t capture(context, ZMQ_XSUB);
     front.bind("tcp://*:31337");
     back.bind("tcp://*:31338");
-    capture.bind("tcp://*:31339");
+   // capture.bind("tcp://*:31339");
 
     auto f = std::async(std::launch::async, [&]() {
         auto s1 = std::move(front);
         auto s2 = std::move(back);
-        auto s3 = std::move(capture);
+        //auto s3 = std::move(capture);
 
         {
             monitor_front_ = make_unique<Monitor>();
@@ -48,7 +48,9 @@ int main (int argc, char *argv[])
 
         try
         {
-            zmq::proxy(s1, s2, zmq::socket_ref(s3));
+            //zmq::proxy(s1, s2, zmq::socket_ref(s3));
+            zmq::proxy(s1, s2, nullptr);
+
         }
         catch (const zmq::error_t& e)
         {
