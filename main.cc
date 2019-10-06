@@ -7,7 +7,7 @@
 using namespace std;
 
 void doMonitor(Monitor &monitor, zmq::socket_t &socket, std::string &addr) {
-    std::cout << "start" << std::endl;
+    std::cout << "start monitor " << addr << std::endl;
     monitor.monitor(socket, addr, ZMQ_EVENT_ALL);
 }
 
