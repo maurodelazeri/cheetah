@@ -14,52 +14,41 @@ void doMonitor(Monitor &monitor, zmq::socket_t &socket, std::string &addr) {
     monitor.monitor(socket, addr, ZMQ_EVENT_ALL);
 }
 
-int main (int argc, char *argv[])
-{
-    std::unique_ptr<Monitor> monitor_front_;
-    std::unique_ptr<Monitor> monitor_back_;
+int main(int argc, char *argv[]) {
+    try {
+        std::unique_ptr<Monitor> monitor_front_;
+        std::unique_ptr<Monitor> monitor_back_;
 
-    zmq::context_t context;
-    zmq::socket_t front(context, ZMQ_XSUB);
-    zmq::socket_t back(context, ZMQ_XPUB);
-    //zmq::socket_t capture(context, ZMQ_XSUB);
-    front.bind("tcp://*:31337");
-    back.bind("tcp://*:31338");
-   // capture.bind("tcp://*:31339");
-
-    auto f = std::async(std::launch::async, [&]() {
-        auto s1 = std::move(front);
-        auto s2 = std::move(back);
-        //auto s3 = std::move(capture);
+        zmq::context_t context;
+        zmq::socket_t front(context, ZMQ_XSUB);
+        zmq::socket_t back(context, ZMQ_XPUB);
+        //zmq::socket_t capture(context, ZMQ_XSUB);
+        front.bind("tcp://*:31337");
+        back.bind("tcp://*:31338");
+        // capture.bind("tcp://*:31339");
 
         {
             monitor_front_ = make_unique<Monitor>();
             std::string addr = "inproc://monitor.front";
-            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_front_), std::ref(s1), addr));
+            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_front_), std::ref(front), addr));
             thr.detach();
         }
 
         {
             monitor_back_ = make_unique<Monitor>();
             std::string addr = "inproc://monitor.back";
-            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_back_), std::ref(s2),addr));
+            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_back_), std::ref(back), addr));
             thr.detach();
         }
 
-        try
-        {
-            //zmq::proxy(s1, s2, zmq::socket_ref(s3));
-            zmq::proxy(s1, s2, nullptr);
+        //zmq::proxy(front, back, zmq::socket_ref(capture));
+        zmq::proxy(front, back, nullptr);
 
-        }
-        catch (const zmq::error_t& e)
-        {
-            return e.num() == ETERM;
-        }
-        return false;
-    });
+    }
+    catch (const zmq::error_t &e) {
+        return e.num() == ETERM;
+    }
 
-    sleep(10000);
     return 0;
 }
 
