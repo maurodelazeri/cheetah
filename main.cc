@@ -6,11 +6,6 @@
 
 using namespace std;
 
-void doMonitor(Monitor &monitor, zmq::socket_t &socket, std::string &addr) {
-    std::cout << "start monitor " << addr << std::endl;
-    monitor.monitor(socket, addr, ZMQ_EVENT_ALL);
-}
-
 int main(int argc, char *argv[]) {
     try {
         std::unique_ptr<Monitor> monitor_front_;
@@ -25,18 +20,22 @@ int main(int argc, char *argv[]) {
         // capture.bind("tcp://*:31339");
 
         {
-            monitor_front_ = make_unique<Monitor>();
-            std::string addr = "inproc://monitor.front";
-            // TODO, FIXME: change to lambda
-            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_front_), std::ref(front), addr));
+            std::thread thr([&front = front](){
+                std::string addr = "inproc://monitor.front";
+                std::cout << "start monitor " << addr << std::endl;
+                std::unique_ptr<Monitor> monitor_front_ = make_unique<Monitor>();
+                monitor_front_->monitor(front, addr, ZMQ_EVENT_ALL);
+            });
             thr.detach();
         }
 
         {
-            monitor_back_ = make_unique<Monitor>();
-            std::string addr = "inproc://monitor.back";
-            // TODO, FIXME: change to lambda
-            std::thread thr = std::thread(std::bind(doMonitor, std::ref(*monitor_back_), std::ref(back), addr));
+            std::thread thr([&back = back](){
+                std::string addr = "inproc://monitor.back";
+                std::cout << "start monitor " << addr << std::endl;
+                std::unique_ptr<Monitor> monitor_back_ = make_unique<Monitor>();
+                monitor_back_->monitor(back, addr, ZMQ_EVENT_ALL);
+            });
             thr.detach();
         }
 
