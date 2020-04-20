@@ -1,7 +1,6 @@
 #include <iostream>
 #include <thread>
 #include <zmq.hpp>
-#include <functional>
 #include "Monitor.h"
 
 using namespace std;
@@ -40,7 +39,7 @@ int main(int argc, char *argv[]) {
         }
 
         //zmq::proxy(front, back, zmq::socket_ref(capture));
-        zmq::proxy(front, back, nullptr);
+        zmq::proxy(front, back);
 
     }
     catch (const zmq::error_t &e) {
