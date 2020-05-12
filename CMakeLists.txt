@@ -1,15 +1,42 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.14)
 project(cheetah)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
-if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-    conan_basic_setup()
-else()
-    message(WARNING "The file conanbuildinfo.cmake doesn't exist, you have to run conan install first")
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    add_definitions(-DDEBUG=1)
+else ()
+    add_definitions(-DDEBUG=0)
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
-add_executable(cheetah main.cc Monitor.h Monitor.cc)
+set(LIB_PREFIX "/usr/local/lib")
 
-target_link_libraries(cheetah ${CONAN_LIBS})
+find_package(Threads REQUIRED)
+
+find_package(cppzmq)
+set(ZMQ_LIB "${LIB_PREFIX}/libzmq.a")
+
+include_directories(/usr/local/include)
+link_directories(/usr/local/lib)
+
+set ( SOURCES
+        main.cc
+        Monitor.cc)
+
+set ( HEADERS
+        Monitor.h)
+
+set(PROJECT_SRCS ${SOURCES})
+set(PROJECT_HDRS ${HEADERS})
+
+add_executable(cheetah
+        ${PROJECT_SRCS}
+        ${PROJECT_HDRS})
+
+target_link_libraries(cheetah
+        PRIVATE
+        crypto
+        ssl
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${ZMQ_LIB})
