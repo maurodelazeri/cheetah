@@ -13,11 +13,8 @@ int main(int argc, char *argv[]) {
         zmq::context_t context;
         zmq::socket_t front(context, ZMQ_XSUB);
         zmq::socket_t back(context, ZMQ_XPUB);
-        //zmq::socket_t capture(context, ZMQ_XSUB);
         front.bind("tcp://*:31337");
         back.bind("tcp://*:31338");
-        // capture.bind("tcp://*:31339");
-
         {
             std::thread thr([&front = front](){
                 std::string addr = "inproc://monitor.front";
@@ -37,8 +34,6 @@ int main(int argc, char *argv[]) {
             });
             thr.detach();
         }
-
-        //zmq::proxy(front, back, zmq::socket_ref(capture));
         zmq::proxy(front, back);
 
     }
